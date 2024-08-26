@@ -1,6 +1,7 @@
 /* Header Styles */
+/*ya valllan ana changes the colors*/
 .header {
-    background-color: #2C3E50;
+    background-color: #f4f4f4;
     padding: 15px;
     position: sticky;
     top: 0;
@@ -175,7 +176,7 @@ body{
 }
 
 .newsletter button:hover {
-    background-color: #6a949c;
+    background-color:#ffa500;
 }
 
 .terms {
