@@ -1,0 +1,44 @@
+body {
+  background-color: #e0f7fa;
+  color: #004d40;
+}
+
+.container {
+  background-color: #ffffff;
+  border: 1px solid #004d40;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+h1, h2 {
+  color: #00796b;
+}
+
+.input-section, .stats, .comparison-section {
+  background-color: #b2dfdb;
+  border: 1px solid #004d40;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+button {
+  background-color: #00796b;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #004d40;
+}
+
+.bar {
+  background-color: #00796b;
+}
+
+.bar.active {
+  background-color: #d32f2f;
+}

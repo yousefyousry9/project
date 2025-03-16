@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuickSort Visualizer</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="colors.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>QuickSort Visualizer</h1>
+
+      <div class="input-section">
+        <div class="input-group">
+          <input
+            type="text"
+            id="arrayInput"
+            placeholder="Enter numbers separated by commas (e.g., 5,2,8,1,9)"
+          />
+          <select id="algorithmSelect">
+            <option value="quickSortRecursive">QuickSort (Recursive)</option>
+            <option value="quickSortIterative">QuickSort (Iterative)</option>
+            <option value="mergeSort">MergeSort</option>
+            <option value="heapSort">HeapSort</option>
+            <option value="builtInSort">Built-in Sort (JavaScript)</option>
+          </select>
+          <button onclick="startSort()">Sort</button>
+        </div>
+        <button onclick="generateRandomArray()">Generate Random Array</button>
+      </div>
+
+      <div class="visualization" id="visualization"></div>
+
+      <div class="stats">
+        <p>Original Array: <span id="originalArray"></span></p>
+        <p>Sorted Array: <span id="sortedArray"></span></p>
+        <p>Time Taken: <span id="timeTaken">0</span> ms</p>
+      </div>
+    </div>
+
+    <div class="comparison-section">
+      <h2>Comparison with Other Sorting Algorithms</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Algorithm</th>
+            <th>Time Complexity (Average)</th>
+            <th>Time Complexity (Worst)</th>
+            <th>Space Complexity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>QuickSort</td>
+            <td>O(n log n)</td>
+            <td>O(n^2)</td>
+            <td>O(log n)</td>
+          </tr>
+          <tr>
+            <td>MergeSort</td>
+            <td>O(n log n)</td>
+            <td>O(n log n)</td>
+            <td>O(n)</td>
+          </tr>
+          <tr>
+            <td>HeapSort</td>
+            <td>O(n log n)</td>
+            <td>O(n log n)</td>
+            <td>O(1)</td>
+          </tr>
+          <tr>
+            <td>Built-in Sort (JavaScript)</td>
+            <td>O(n log n)</td>
+            <td>O(n log n)</td>
+            <td>O(n)</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        QuickSort is generally faster in practice compared to MergeSort and
+        HeapSort due to better cache performance and lower constant factors.
+        However, its worst-case time complexity is O(n^2), which can be
+        mitigated by using randomized pivot selection.
+      </p>
+    </div>
+
+    <script>
+      let array = [];
+      let visualization = document.getElementById("visualization");
+
+      function generateRandomArray() {
+        // Generates a random array of 5-15 elements with values between 1 and 100
+        const length = Math.floor(Math.random() * 10) + 5;
+        array = Array.from(
+          { length },
+          () => Math.floor(Math.random() * 100) + 1
+        );
+        document.getElementById("arrayInput").value = array.join(",");
+        updateVisualization(array);
+        document.getElementById("originalArray").textContent = array.join(", ");
+        document.getElementById("sortedArray").textContent = "";
+        document.getElementById("timeTaken").textContent = "0";
+      }
+
+      function updateVisualization(arr, activeIndices = []) {
+        // Updates the visualization of the array
+        visualization.innerHTML = "";
+        const max = Math.max(...arr);
+
+        arr.forEach((value, index) => {
+          const bar = document.createElement("div");
+          bar.className =
+            "bar" + (activeIndices.includes(index) ? " active" : "");
+          bar.style.height = `${(value / max) * 180}px`;
+          visualization.appendChild(bar);
+        });
+      }
+
+      async function quickSortRecursive(arr, left = 0, right = arr.length - 1) {
+        // Recursive QuickSort implementation
+        if (left < right) {
+          const pivotIndex = await partition(arr, left, right);
+          await quickSortRecursive(arr, left, pivotIndex - 1);
+          await quickSortRecursive(arr, pivotIndex + 1, right);
+        }
+        return arr;
+      }
+
+      async function quickSortIterative(arr) {
+        // Iterative QuickSort implementation using a stack
+        const stack = [];
+        stack.push(0);
+        stack.push(arr.length - 1);
+
+        while (stack.length) {
+          const right = stack.pop();
+          const left = stack.pop();
+
+          const pivotIndex = await partition(arr, left, right);
+
+          if (pivotIndex - 1 > left) {
+            stack.push(left);
+            stack.push(pivotIndex - 1);
+          }
+
+          if (pivotIndex + 1 < right) {
+            stack.push(pivotIndex + 1);
+            stack.push(right);
+          }
+        }
+        return arr;
+      }
+
+      async function partition(arr, left, right) {
+        // Partition function used by QuickSort
+        const pivot = arr[right];
+        let i = left - 1;
+
+        for (let j = left; j < right; j++) {
+          if (arr[j] <= pivot) {
+            i++;
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+            updateVisualization(arr, [i, j, right]);
+            await new Promise((resolve) => setTimeout(resolve, 50)); // Reduced delay for faster visualization
+          }
+        }
+
+        [arr[i + 1], arr[right]] = [arr[right], arr[i + 1]];
+        updateVisualization(arr, [i + 1, right]);
+        await new Promise((resolve) => setTimeout(resolve, 50)); // Reduced delay for faster visualization
+
+        return i + 1;
+      }
+
+      async function mergeSort(arr) {
+        // Implement MergeSort algorithm
+        if (arr.length < 2) return arr;
+
+        const mid = Math.floor(arr.length / 2);
+        const left = await mergeSort(arr.slice(0, mid));
+        const right = await mergeSort(arr.slice(mid));
+
+        return merge(left, right);
+      }
+
+      function merge(left, right) {
+        const result = [];
+        let leftIndex = 0;
+        let rightIndex = 0;
+
+        while (leftIndex < left.length && rightIndex < right.length) {
+          if (left[leftIndex] < right[rightIndex]) {
+            result.push(left[leftIndex]);
+            leftIndex++;
+          } else {
+            result.push(right[rightIndex]);
+            rightIndex++;
+          }
+        }
+
+        return result
+          .concat(left.slice(leftIndex))
+          .concat(right.slice(rightIndex));
+      }
+
+      async function heapSort(arr) {
+        // Implement HeapSort algorithm
+        const n = arr.length;
+
+        for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+          await heapify(arr, n, i);
+        }
+
+        for (let i = n - 1; i > 0; i--) {
+          [arr[0], arr[i]] = [arr[i], arr[0]];
+          await heapify(arr, i, 0);
+        }
+
+        return arr;
+      }
+
+      async function heapify(arr, n, i) {
+        let largest = i;
+        const left = 2 * i + 1;
+        const right = 2 * i + 2;
+
+        if (left < n && arr[left] > arr[largest]) {
+          largest = left;
+        }
+
+        if (right < n && arr[right] > arr[largest]) {
+          largest = right;
+        }
+
+        if (largest !== i) {
+          [arr[i], arr[largest]] = [arr[largest], arr[i]];
+          updateVisualization(arr, [i, largest]);
+          await new Promise((resolve) => setTimeout(resolve, 50)); // Reduced delay for faster visualization
+          await heapify(arr, n, largest);
+        }
+      }
+
+      async function builtInSort(arr) {
+        // Uses JavaScript's built-in sort function
+        return arr.sort((a, b) => a - b);
+      }
+
+      async function startSort() {
+        // Starts the sorting process based on the selected algorithm
+        const input = document.getElementById("arrayInput").value;
+        array = input.split(",").map((num) => parseInt(num.trim()));
+
+        if (array.some(isNaN)) {
+          alert("Please enter valid numbers separated by commas");
+          return;
+        }
+
+        document.getElementById("originalArray").textContent = array.join(", ");
+
+        const algorithm = document.getElementById("algorithmSelect").value;
+        const startTime = performance.now();
+
+        switch (algorithm) {
+          case "quickSortRecursive":
+            await quickSortRecursive([...array]);
+            break;
+          case "quickSortIterative":
+            await quickSortIterative([...array]);
+            break;
+          case "mergeSort":
+            array = await mergeSort([...array]);
+            break;
+          case "heapSort":
+            await heapSort([...array]);
+            break;
+          case "builtInSort":
+            array = await builtInSort([...array]);
+            break;
+        }
+
+        const endTime = performance.now();
+
+        document.getElementById("sortedArray").textContent = array.join(", ");
+        document.getElementById("timeTaken").textContent = (
+          endTime - startTime
+        ).toFixed(2);
+      }
+
+      // Initialize with random array on load
+      generateRandomArray();
+    </script>
+  </body>
+</html>
